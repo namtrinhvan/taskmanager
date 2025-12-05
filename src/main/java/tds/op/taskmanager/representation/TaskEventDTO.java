@@ -2,6 +2,7 @@ package tds.op.taskmanager.representation;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.time.LocalDate; //
 
 @Data
 public class TaskEventDTO {
@@ -12,8 +13,11 @@ public class TaskEventDTO {
     private TaskStatus prevStatus;
     private TaskStatus nextStatus;
     
+    // --- Fields mới ---
+    private LocalDate prevDeadline;
+    private LocalDate nextDeadline;
+    
     private LocalDateTime createdDate;
     
-    // Thông tin người tạo sự kiện (Audit)
     private StaffDTO createdBy; 
 }

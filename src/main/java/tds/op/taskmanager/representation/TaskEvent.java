@@ -8,6 +8,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.time.LocalDate; //
 
 @Data
 @Entity
@@ -18,19 +19,20 @@ public class TaskEvent {
 
     private Long taskId;
     
-    private String note; // Ghi chú về sự thay đổi (VD: "Gia hạn deadline")
+    private String note; 
+    
+    // --- STATUS CHANGE ---
+    @Enumerated(EnumType.STRING)
+    private TaskStatus prevStatus;
     
     @Enumerated(EnumType.STRING)
-    private TaskStatus prevStatus; // Trạng thái cũ
+    private TaskStatus nextStatus;
     
-    @Enumerated(EnumType.STRING)
-    private TaskStatus nextStatus; // Trạng thái mới
+    // --- DEADLINE CHANGE (New Logic) ---
+    private LocalDate prevDeadline; // Deadline cũ
+    private LocalDate nextDeadline; // Deadline mới
     
-    /**
-     * Thời điểm diễn ra sự kiện.
-     * Dùng LocalDateTime để tiện xử lý hơn String trong project mới.
-     */
     private LocalDateTime createdDate; 
     
-    private Long createdBy; // ID của người thực hiện thay đổi (Staff.id)
+    private Long createdBy;
 }

@@ -96,9 +96,7 @@ public class PlanService {
         return dto;
     }
 
-    // --------------------------------------------
-    // BỔ SUNG: Lấy danh sách plan mà Unit tham gia (được giao việc)
-    // --------------------------------------------
+    /**Lấy danh sách plan mà Unit tham gia (được giao việc)*/
     public List<PlanDTO> findPlansAsMember(Long unitId) {
         // Gọi repository để lấy các Plan thỏa mãn điều kiện
         List<Plan> involvedPlans = planRepository.findPlansAsMember(unitId);
