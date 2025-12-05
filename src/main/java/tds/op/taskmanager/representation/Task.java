@@ -30,4 +30,5 @@ public class Task {
     private Long assignerId;
     private Long assigneeId;
     private TaskStatus status;
+    private double progress;
 }

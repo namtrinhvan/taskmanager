@@ -7,24 +7,26 @@ import jakarta.persistence.Id;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Data;
+import java.time.LocalDate;
 
 @Data
 @Entity
-public class Unit {
+public class Action {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long taskId; // Link với Task qua ID
+    
     private String name;
     
-    private String head; // Email hoặc ID của người đứng đầu đơn vị
+    private String description;
+    
+    private LocalDate deadline; 
     
     @Enumerated(EnumType.STRING)
-    private UnitLevel level; // DEPARTMENT, GROUP, FUNCTION
-    
-    /**
-     * ID của Unit cha.
-     * Nếu là null hoặc 0 thì đây là Root Unit.
-     */
-    private Long parentUnitId;
+    private TaskStatus status; // PENDING, COMPLETED,...
+
+    // KHÔNG lưu executorId ở đây nữa. 
+    // Việc phân công sẽ nằm ở bảng ActionExecutor.
 }

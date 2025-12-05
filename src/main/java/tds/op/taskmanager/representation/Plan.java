@@ -1,17 +1,26 @@
 package tds.op.taskmanager.representation;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
 @Data
+@Entity
 public class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+
     private String name;
-    private String startMonth; // YYYY-MM
-    private String endMonth;  // YYYY-MM
+    
+    private String startMonth; // Format: YYYY-MM
+    
+    private String endMonth;   // Format: YYYY-MM
+    
+    /**
+     * ID của Unit sở hữu kế hoạch này.
+     */
     private Long unitId;
 }

@@ -4,15 +4,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-//Để cho phép một action có thể có nhiều người thực hiện.
-@Getter
-@Setter
+@Data
 @Entity
 public class ActionExecutor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Long actionId; // ID của Action
+    
+    private Long executorId; // Refers to Staff.id
 }
