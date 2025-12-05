@@ -211,6 +211,19 @@ public class TaskService {
     // =========================================================================
     // ASSEMBLER / MAPPERS
     // =========================================================================
+    @Transactional
+    public void updateTaskProgress(Long taskId, double progress) {
+        Optional<Task> taskOpt = taskRepository.findById(taskId);
+        if (taskOpt.isPresent()) {
+            Task task = taskOpt.get();
+            // Validate progress trong khoảng 0.0 - 1.0 (hoặc 0-100 tùy quy ước của bạn)
+            if (progress < 0) progress = 0;
+            if (progress > 1) progress = 1;
+
+            task.setProgress(progress);
+            taskRepository.save(task);
+        }
+    }
 
     private StaffDTO convertStaffToDTO(Staff s) {
         StaffDTO dto = new StaffDTO();
@@ -351,7 +364,18 @@ public class TaskService {
         dto.setInitialDeadline(task.getInitialDeadline());
         dto.setCurrentDeadline(task.getCurrentDeadline());
         dto.setEndDate(task.getEndDate());
+// --- START LOGIC MỚI VỀ PROGRESS ---
+        // Gọi ActionService để xem có progress tính toán từ Action không
+        Double calculatedProgress = actionService.calculateProgress(task.getId());
 
+        if (calculatedProgress != null) {
+            // Trường hợp 1: Có Action -> Dùng tiến độ tính toán (Ghi đè)
+            dto.setProgress(calculatedProgress);
+        } else {
+            // Trường hợp 2: Không có Action -> Dùng tiến độ update thủ công trong DB
+            dto.setProgress(task.getProgress());
+        }
+        // --- END LOGIC MỚI ---
         // --- 3. Map Plan (Logic cũ - Reference) ---
         if (task.getPlanId() != null) {
             planRepository.findById(task.getPlanId()).ifPresent(p -> {

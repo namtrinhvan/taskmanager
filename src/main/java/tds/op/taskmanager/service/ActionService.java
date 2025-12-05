@@ -9,6 +9,7 @@ import tds.op.taskmanager.representation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,8 +19,8 @@ public class ActionService {
     private final ActionExecutorRepository actionExecutorRepository;
     private final StaffRepository staffRepository;
 
-    public ActionService(ActionRepository actionRepository, 
-                         ActionExecutorRepository actionExecutorRepository, 
+    public ActionService(ActionRepository actionRepository,
+                         ActionExecutorRepository actionExecutorRepository,
                          StaffRepository staffRepository) {
         this.actionRepository = actionRepository;
         this.actionExecutorRepository = actionExecutorRepository;
@@ -37,7 +38,7 @@ public class ActionService {
         action.setDescription(dto.getDescription());
         action.setDeadline(dto.getDeadline());
         action.setStatus(TaskStatus.PENDING);
-        
+
         Action savedAction = actionRepository.save(action);
 
         // 2. Save ActionExecutors (Logic đa người thực hiện)
@@ -64,7 +65,7 @@ public class ActionService {
             // Xóa liên kết người thực hiện trước
             List<ActionExecutor> executors = actionExecutorRepository.findByActionId(actionId);
             actionExecutorRepository.deleteAll(executors);
-            
+
             // Sau đó xóa Action
             actionRepository.deleteById(actionId);
         }
@@ -81,6 +82,20 @@ public class ActionService {
         }
     }
 
+    public Double calculateProgress(Long taskId) {
+        List<Action> actions = actionRepository.findByTaskId(taskId);
+
+        if (actions.isEmpty()) {
+            return null; // Không có action -> Trả về null
+        }
+
+        long completedCount = actions.stream()
+                .filter(a -> a.getStatus() == TaskStatus.COMPLETED) //
+                .count();
+
+        // Tính tỷ lệ: số action hoàn thành / tổng số action
+        return (double) completedCount / actions.size();
+    }
     // --- Helper Mappers ---
     private ActionDTO convertActionToDTO(Action action) {
         ActionDTO dto = new ActionDTO();
