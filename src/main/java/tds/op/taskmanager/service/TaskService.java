@@ -90,6 +90,69 @@ public class TaskService {
         }
         return getTaskDetail(savedTask.getId());
     }
+// =========================================================================
+    // GET TASKS BY PLAN (GROUPED BY UUID)
+    // =========================================================================
+
+    /**
+     * Lấy danh sách Task thuộc về một Plan cụ thể.
+     * Logic mới:
+     * - Lấy tất cả task có planId tương ứng.
+     * - Gom nhóm các task này dựa trên UUID (đại diện cho một đầu việc lặp lại).
+     * - Trả về danh sách TaskGroup, mỗi group chứa thông tin chung và list các task con (các tháng).
+     */
+    public List<TaskGroup> getTasksByPlan(Long planId) {
+        if (planId == null) {
+            return Collections.emptyList();
+        }
+
+        // 1. Lấy danh sách Task từ DB
+        List<Task> tasks = taskRepository.findByPlanId(planId);
+
+        if (tasks.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 2. Gom nhóm theo UUID
+        // Map<String (uuid), List<Task>>
+        Map<String, List<Task>> groupedByUuid = tasks.stream().collect(Collectors.groupingBy(Task::getUuid));
+
+        // 3. Map sang List<TaskGroup>
+        List<TaskGroup> result = new ArrayList<>();
+
+        groupedByUuid.forEach((uuid, taskList) -> {
+            if (taskList.isEmpty()) return;
+
+            // Lấy thông tin chung từ phần tử đầu tiên trong nhóm
+            // (Giả định rằng name và description của các task cùng UUID là giống nhau hoặc tương tự)
+            Task firstTask = taskList.get(0);
+
+            TaskGroup group = new TaskGroup();
+            group.setUuid(uuid);
+            group.setName(firstTask.getName());
+            group.setDescription(firstTask.getDescription());
+
+            // Convert list entity -> list DTO
+            List<TaskDTO> taskDTOs = taskList.stream().map(this::convertToDTO) // Sử dụng hàm convert đã có logic tính progress & executors
+                    .sorted(Comparator.comparing(t -> {
+                        // Sort các task trong nhóm theo tháng (YYYY-MM)
+                        try {
+                            return YearMonth.parse(t.getMonth());
+                        } catch (Exception e) {
+                            // Fallback nếu format lỗi, đẩy xuống cuối
+                            return YearMonth.now().plusYears(100);
+                        }
+                    })).collect(Collectors.toList());
+
+            group.setTasks(taskDTOs);
+            result.add(group);
+        });
+
+        // 4. Sắp xếp danh sách Group theo tên A-Z để dễ nhìn
+        result.sort(Comparator.comparing(TaskGroup::getName));
+
+        return result;
+    }
 
     public TaskDTO getTaskDetail(Long taskId) {
         Optional<Task> taskOpt = taskRepository.findById(taskId);
