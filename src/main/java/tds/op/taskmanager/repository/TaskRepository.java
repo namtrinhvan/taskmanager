@@ -20,4 +20,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
            "AND (t.parentTaskId IS NULL OR t.parentTaskId NOT IN " +
            "(SELECT pt.id FROM Task pt WHERE pt.assigneeId = :unitId))")
     List<Task> findRootTasksByPlanAndUnit(@Param("planId") Long planId, @Param("unitId") Long unitId);
+
+    @Query("SELECT t FROM Task t " +
+            "JOIN TaskExecutor te ON te.taskId = t.id " +
+            "WHERE te.executorId = :staffId " + // Đã sửa thành executorId
+            "ORDER BY t.currentDeadline ASC") // Sắp xếp theo currentDeadline thay vì deadline cũ
+    List<Task> findTasksByExecutor(@Param("staffId") Long staffId);
 }

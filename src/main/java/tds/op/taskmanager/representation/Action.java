@@ -29,4 +29,8 @@ public class Action {
 
     // KHÔNG lưu executorId ở đây nữa. 
     // Việc phân công sẽ nằm ở bảng ActionExecutor.
+
+    // Thêm vào class Action
+    private Boolean isDone = false; // Mặc định là chưa xong
+
 }

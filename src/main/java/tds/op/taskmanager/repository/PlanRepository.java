@@ -17,4 +17,12 @@ public interface PlanRepository extends JpaRepository<Plan, Long> {
      */
     @Query("SELECT DISTINCT p FROM Plan p WHERE p.id IN (SELECT t.planId FROM Task t WHERE t.assigneeId = :unitId)")
     List<Plan> findPlansAsMember(@Param("unitId") Long unitId);
+
+    @Query("SELECT DISTINCT p FROM Plan p " +
+            "LEFT JOIN Task t ON t.planId = p.id " +
+            "LEFT JOIN TaskExecutor te ON te.taskId = t.id " +
+            "LEFT JOIN Action a ON a.taskId = t.id " +
+            "LEFT JOIN ActionExecutor ae ON ae.actionId = a.id " +
+            "WHERE te.executorId = :staffId OR ae.executorId = :staffId") // Đã sửa thành executorId
+    List<Plan> findPlansByParticipant(@Param("staffId") Long staffId);
 }
